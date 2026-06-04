@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webbap Quote Quiz</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #252538);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: #2d2d44;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 550px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #ff79c6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .score-board {
+            font-size: 14px;
+            color: #bd93f9;
+            margin-bottom: 25px;
+            font-weight: 600;
+            background: rgba(189, 147, 249, 0.1);
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .quote-box {
+            background: #212130;
+            border-left: 5px solid #ff79c6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quote-text {
+            font-size: 18px;
+            font-style: italic;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .quote-date {
+            font-size: 12px;
+            color: #8be9fd;
+            font-weight: bold;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            background: #383854;
+            color: white;
+            border: 2px solid transparent;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #444469;
+            border-color: #bd93f9;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .btn.correct {
+            background: #50fa7b !important;
+            color: #1e1e2f !important;
+            border-color: #50fa7b;
+        }
+
+        .btn.incorrect {
+            background: #ff5555 !important;
+            color: white !important;
+            border-color: #ff5555;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 27px;
+        }
+
+        .feedback.correct-text { color: #50fa7b; }
+        .feedback.incorrect-text { color: #ff5555; }
+
+        .next-btn {
+            margin-top: 25px;
+            background: #ff79c6;
+            color: #1e1e2f;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: none;
+            width: 100%;
+        }
+
+        .next-btn:hover {
+            background: #ff92df;
+            box-shadow: 0 4px 15px rgba(255, 121, 198, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1>Banketbakkerij Quote Quiz</h1>
+        <div class="score-board">Score: <span id="score">0</span> / <span id="total">0</span></div>
+        
+        <div class="quote-box">
+            <div class="quote-text" id="quote-text">"Laden..."</div>
+            <div class="quote-date" id="quote-date">Datum: --/--/----</div>
+        </div>
+
+        <div class="options-container" id="options-container">
+            </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Volgende Quote &rarr;</button>
+    </div>
+
+    <script>
+        // De exacte 53 quotes uit jouw bestand paired met de juiste datum
+        const quotesData = [{"name": "ODE", "quote": "Ik heb een super poes", "date": "2022/07/11"}, {"name": "ODE", "quote": "Ode_insta “gwem", "date": "11/29/2022"}, {"name": "ODE", "quote": "Hij krauwt me in me AaAaAaa", "date": "12/17/2022"}, {"name": "ODE", "quote": "kiez dan iets anders AAAAAAAAAAAAAAAAA", "date": "12/23/2022"}, {"name": "ODE", "quote": "Hij gaat even slayen", "date": "12/26/2022"}, {"name": "ODE", "quote": "Milliebobbydabrown", "date": "12/26/2022"}, {"name": "ODE", "quote": "ik zet je wat zachter want ik hoor je niet zo goed", "date": "12/28/2022"}, {"name": "BO", "quote": "omeeens komde", "date": "10/19/2022"}, {"name": "BO", "quote": "Jeron=he:d", "date": "10/19/2022"}, {"name": "BO", "quote": "Met de smell fouten", "date": "10/19/2022"}, {"name": "BO", "quote": "koolzak", "date": "10/19/2022"}, {"name": "BO", "quote": "ik kan pijpen!", "date": "2022/05/11"}, {"name": "BO", "quote": "ik wio alle foen", "date": "11/14/2022"}, {"name": "BO", "quote": "yir🤖", "date": "11/30/2022"}, {"name": "BO", "quote": "WE GAAN DIT YAS QUEEN SLAY QUEENEN", "date": "2022/02/12"}, {"name": "BO", "quote": "prezentaie", "date": "12/13/2022"}, {"name": "BO", "quote": "ik weet waar zijn huis slaapt", "date": "12/21/2022"}, {"name": "MEYGAN", "quote": "CUM”laude", "date": "2022/11/11"}, {"name": "MEYGAN", "quote": "Ode_insta “gwem", "date": "11/29/2022"}, {"name": "CHRISTELLE", "quote": "Het wordt ster", "date": "10/18/2022"}, {"name": "CHRISTELLE", "quote": "Ik heb een suiker lijntje gemaakt", "date": "10/19/2022"}, {"name": "CHRISTELLE", "quote": "My laugh my ass", "date": "10/19/2022"}, {"name": "CHRISTELLE", "quote": "BeNomi", "date": "10/25/2022"}, {"name": "CHRISTELLE", "quote": "sen (s) should (e) end (n)", "date": "2022/07/12"}, {"name": "CHRISTELLE", "quote": "Ik vind slavernij helemaal leuk", "date": "12/13/2022"}, {"name": "CHRISTELLE", "quote": "ik ben er gewoon uitgekikkerd!", "date": "12/14/2022"}, {"name": "CHRISTELLE", "quote": "Kabauter blop", "date": "12/17/2022"}, {"name": "CHRISTELLE", "quote": "9 jaar minimaal, 9 jaar maximaal", "date": "12/19/2022"}, {"name": "CHRISTELLE", "quote": "Jeroen is er toch niet, we kunnen spuiten wat we willen", "date": "12/21/2022"}, {"name": "CHRISTELLE", "quote": "Kom er maar bij, ik wil wel een triotje", "date": "12/26/2022"}, {"name": "JEROEN", "quote": "Hoe heet je ook alweer?", "date": "10/18/2022"}, {"name": "JEROEN", "quote": "Visual Cudio Stode", "date": "10/19/2022"}, {"name": "JEROEN", "quote": "Ik houdt van vervangend vervoer regelen als er geen bussen rijden 👍", "date": "10/20/2022"}, {"name": "JEROEN", "quote": "slay queeeeen", "date": "2022/01/11"}, {"name": "JEROEN", "quote": "pogg", "date": "2022/02/11"},
+        {"name": "JEROEN", "quote": "are you have ok", "date": "2022/01/11"}, {"name": "JEROEN", "quote": "oggers", "date": "12/13/2022"}, {"name": "JEROEN", "quote": "De groter de speler, de groter het gat", "date": "12/22/2022"}, {"name": "JEROEN", "quote": "hoezo ben ik aan het bloeden?", "date": "12/26/2022"}, {"name": "JEROEN", "quote": "ik heb net een oude vrouw in elkaar geslagen en ik kreeg dr een achievement voor", "date": "12/26/2022"}, {"name": "JEROEN", "quote": "holy shit joar ik kan je straks pijpen", "date": "12/26/2022"}, {"name": "NOMI", "quote": "Appel!临 oh- het is een ananas ", "date": "10/19/2022"}, {"name": "NOMI", "quote": "Doe suiker snuiven!", "date": "10/19/2022"}, {"name": "NOMI", "quote": "Je gaat toch niet die suiker snuiven?", "date": "10/19/2022"}, {"name": "NOMI", "quote": "Passworm", "date": "11/14/2022"}, {"name": "NOMI", "quote": "🍽️ 🍔 💭  <-- 👩 (Chris rn)", "date": "11/16/2022"}, {"name": "NOMI", "quote": "Ik heb nog een chinees in de koelkast", "date": "11/30/2022"}, {"name": "NOMI", "quote": "raics", "date": "12/14/2022"}, {"name": "NOMI", "quote": "van die ei ie machines", "date": "2022-06-12"}, {"name": "NOMI", "quote": "Ik spuit op alles", "date": "12/16/2022"}, {"name": "NOMI", "quote": "We gaan de boeken likken", "date": "12/16/2022"}, {"name": "NOMI", "quote": "het supports polyllolmorphic queries", "date": "12/21/2022"}, {"name": "LANDO", "quote": "hocus pocus ik heb geen focus", "date": "12/14/2022"}];
+        
+        // Alle unieke namen (inclusief degene zonder quotes zoals CASPAR, SANDER, ROCCO)
+        const allNames = ["ODE", "BO", "SANDER", "MEYGAN", "CHRISTELLE", "JEROEN", "ROCCO", "NOMI", "LUNA", "CASPAR"];
+
+        let shuffledQuotes = [];
+        let currentIdx = 0;
+        let score = 0;
+        let total = 0;
+
+        function initQuiz() {
+            shuffledQuotes = [...quotesData].sort(() => Math.random() - 0.5);
+            currentIdx = 0;
+            score = 0;
+            total = 0;
+            document.getElementById('score').innerText = score;
+            document.getElementById('total').innerText = total;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentIdx >= shuffledQuotes.length) {
+                alert("Je hebt alle quotes gehad! We beginnen weer van voor af aan.");
+                initQuiz();
+                return;
+            }
+
+            const currentQuote = shuffledQuotes[currentIdx];
+            document.getElementById('quote-text').innerText = '"' + currentQuote.quote + '"';
+            document.getElementById('quote-date').innerText = "Datum: " + currentQuote.date;
+            
+            document.getElementById('feedback').innerText = "";
+            document.getElementById('feedback').className = "feedback";
+            document.getElementById('next-btn').style.display = "none";
+
+            // Filter de correcte naam uit om 2 andere foute namen te vinden
+            const fouteOpties = allNames.filter(name => name !== currentQuote.name);
+            const gekozenFoute = fouteOpties.sort(() => Math.random() - 0.5).slice(0, 2);
+            
+            // Voeg de juiste naam toe en hussel de 3 knoppen willekeurig
+            const opties = [...gekozenFoute, currentQuote.name].sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+
+            opties.forEach(optie => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.innerText = optie;
+                btn.onclick = function() { checkAnswer(btn, optie, currentQuote.name); };
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedBtn, gekozenNaam, correcteNaam) {
+            total++;
+            document.getElementById('total').innerText = total;
+
+            const buttons = document.querySelectorAll('.options-container .btn');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const feedbackEl = document.getElementById('feedback');
+
+            if (gekozenNaam === correcteNaam) {
+                selectedBtn.classList.add('correct');
+                feedbackEl.innerText = "✅ Helemaal goed!";
+                feedbackEl.className = "feedback correct-text";
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                selectedBtn.classList.add('incorrect');
+                feedbackEl.innerText = "❌ Helaas! Het was " + correcteNaam;
+                feedbackEl.className = "feedback incorrect-text";
+
+                buttons.forEach(btn => {
+                    if (btn.innerText === correcteNaam) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            document.getElementById('next-btn').style.display = "block";
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            showQuestion();
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
